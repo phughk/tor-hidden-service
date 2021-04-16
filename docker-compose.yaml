@@ -1,0 +1,30 @@
+services:
+  tor:
+    image: goldy/tor-hidden-service:latest
+    links:
+      - theservice
+    environment:
+        MY_TOR_SERVICE_HOSTS: '80:theservice:8080'
+        MY_TOR_SERVICE_VERSION: '3'
+
+    # Keep keys in volumes
+    volumes:
+      - tor-keys:/var/lib/tor/hidden_service/
+
+    # Set secret for key, use the same name as the service
+    secrets:
+      - source: theservice
+        target: theservice
+        mode: 0400
+
+  theservice:
+    image: phughk/tor-hidden-service
+    hostname: theservice 
+
+volumes:
+    tor-keys:
+        driver: local
+
+secrets:
+    theservice:
+        file: private-key.b64
